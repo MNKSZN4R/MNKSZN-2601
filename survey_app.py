@@ -48,6 +48,15 @@ def run_survey():
 
     # Sidebar with information
     with st.sidebar:
+        st.markdown("### 🌍 Select Country")
+        country = st.selectbox(
+            "Choose your country:",
+            ["Select a country", "Zambia", "Zimbabwe", "Kenya"],
+            index=0
+        )
+        
+        st.markdown("---")
+        
         st.markdown("### 📋 About This Survey")
         st.write("""
         This benchmarking exercise evaluates your country portfolio across four interconnected domains 
@@ -156,6 +165,11 @@ def run_survey():
         submit_button = st.button("📊 Submit Benchmarking Assessment", type="primary", use_container_width=True)
 
     if submit_button:
+        # Check if country is selected
+        if country == "Select a country":
+            st.error("⚠️ Please select a country before submitting.")
+            return
+        
         # Check if all questions are answered
         all_answered = all(
             all(response is not None for response in domain_responses.values())
@@ -178,11 +192,11 @@ def run_survey():
             percentage = (total_score / max_possible) * 100
 
             # Display results
-            st.success("✅ Benchmarking assessment submitted successfully!")
+            st.success(f"✅ Benchmarking assessment for **{country}** submitted successfully!")
             st.markdown("---")
             
             # Overall results
-            st.markdown("### 📊 Overall Results")
+            st.markdown(f"### 📊 Overall Results - {country}")
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.metric("Total Score", f"{total_score}/{max_possible}")
@@ -249,6 +263,7 @@ def run_survey():
             results_text = f"""SNV Four Domains Technical Expertise Benchmarking Results
 {'='*60}
 
+Country: {country}
 Overall Score: {total_score}/{max_possible} ({percentage:.1f}%)
 
 Domain Scores:
@@ -266,7 +281,7 @@ Domain Scores:
             st.download_button(
                 label="📥 Download Complete Results",
                 data=results_text,
-                file_name="snv_benchmarking_results.txt",
+                file_name=f"snv_benchmarking_results_{country.lower()}.txt",
                 mime="text/plain"
             )
 
