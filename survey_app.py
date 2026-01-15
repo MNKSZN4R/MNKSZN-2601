@@ -51,7 +51,7 @@ def run_survey():
         st.markdown("### 🌍 Select Country")
         country = st.selectbox(
             "Choose your country:",
-            ["Select a country", "Zambia", "Zimbabwe", "Kenya"],
+            ["Select a country", "Bangladesh", "Benin", "Bhutan", "Burkina Faso" ,"Burundi", "Cambodia", "Ethiopia", "Ghana", "Indonesia", "Kenya", "Lao PDR", "Mali", "Mozambique" , "Nepal" ,"Niger", "Nigeria", "Rwanda" , "South Sudan" , "Tanzania" , "Uganda" , "Vietnam" , "Zambia" , "Zimbabwe"],
             index=0
         )
         
@@ -287,3 +287,4 @@ Domain Scores:
 
 if __name__ == "__main__":
     run_survey()
+
