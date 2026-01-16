@@ -202,7 +202,7 @@ def run_survey():
         4. **People & Project Management**
         """)
         
-        st.markdown("### 📏 Rating Scale")
+        st.markdown("### 📝 Rating Scale")
         st.write("""
         - **0** - Non-existent
         - **1** - Incipient
@@ -211,41 +211,20 @@ def run_survey():
         - **4** - Full-fledged
         """)
         
-        # Admin section - Only show if URL parameter is present
-        # To access admin: add ?admin=true to your URL
-        # Example: http://localhost:8501/?admin=true
-        query_params = st.query_params
+        # Admin Panel - Always visible
+        st.markdown("---")
+        st.markdown("### 🔐 Admin Panel")
+        st.markdown("Access survey responses and analytics")
         
-        if query_params.get("admin") == "true":
-            st.markdown("---")
-            st.markdown("### 🔐 Admin Panel")
-            admin_password = st.text_input("Enter Admin Password:", type="password", key="admin_pass")
-            
-            # Simple password - you can change this
-            if admin_password == "admin123":
-                st.success("✅ Admin access granted")
-                if st.button("📊 View All Responses", use_container_width=True):
-                    st.session_state.show_admin = True
-            elif admin_password:
-                st.error("❌ Incorrect password")
+        admin_password = st.text_input("Enter Admin Password:", type="password", key="admin_pass")
         
-        # Admin section - Only show if URL parameter is present
-        # To access admin: add ?admin=true to your URL
-        # Example: http://localhost:8501/?admin=true
-        query_params = st.query_params
-        
-        if query_params.get("admin") == "true":
-            st.markdown("---")
-            st.markdown("### 🔐 Admin Panel")
-            admin_password = st.text_input("Enter Admin Password:", type="password", key="admin_pass")
-            
-            # Simple password - you can change this
-            if admin_password == "admin123":
-                st.success("✅ Admin access granted")
-                if st.button("📊 View All Responses", use_container_width=True):
-                    st.session_state.show_admin = True
-            elif admin_password:
-                st.error("❌ Incorrect password")
+        # Simple password - you can change this
+        if admin_password == "admin123":
+            st.success("✅ Admin access granted")
+            if st.button("📊 View All Responses", use_container_width=True):
+                st.session_state.show_admin = True
+        elif admin_password:
+            st.error("❌ Incorrect password")
 
     # Check if admin wants to view responses
     if st.session_state.get('show_admin', False):
