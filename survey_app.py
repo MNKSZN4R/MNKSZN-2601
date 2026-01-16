@@ -58,6 +58,36 @@ def save_to_csv(country, all_responses, domain_scores, total_score, percentage):
         st.error(f"Error saving to CSV: {e}")
         return False
 
+def delete_responses(indices_to_delete=None, delete_all=False):
+    """Delete specific responses or all responses"""
+    try:
+        csv_file = "survey_responses.csv"
+        
+        if not os.path.exists(csv_file):
+            st.error("No responses file found.")
+            return False
+        
+        df = pd.read_csv(csv_file)
+        
+        if delete_all:
+            # Delete all responses by removing the file
+            os.remove(csv_file)
+            st.success("✅ All responses deleted successfully!")
+            return True
+        elif indices_to_delete:
+            # Delete specific rows
+            df = df.drop(indices_to_delete)
+            df = df.reset_index(drop=True)
+            df.to_csv(csv_file, index=False)
+            st.success(f"✅ Deleted {len(indices_to_delete)} response(s) successfully!")
+            return True
+        
+        return False
+        
+    except Exception as e:
+        st.error(f"Error deleting responses: {e}")
+        return False
+
 def view_responses():
     """View all survey responses (admin only)"""
     csv_file = "survey_responses.csv"
@@ -77,6 +107,55 @@ def view_responses():
             st.metric("Average Percentage", f"{avg_pct:.1f}%")
         with col3:
             st.metric("Countries", df['Country'].nunique())
+        
+        st.markdown("---")
+        
+        # Delete Options Section
+        st.markdown("### 🗑️ Delete Responses")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Delete specific responses
+            st.markdown("**Delete Specific Responses**")
+            response_options = [f"Row {i}: {row['Country']} - {row['Timestamp']}" 
+                               for i, row in df.iterrows()]
+            
+            if response_options:
+                selected_to_delete = st.multiselect(
+                    "Select responses to delete:",
+                    options=list(range(len(df))),
+                    format_func=lambda x: response_options[x]
+                )
+                
+                if st.button("🗑️ Delete Selected", type="secondary", use_container_width=True):
+                    if selected_to_delete:
+                        if delete_responses(indices_to_delete=selected_to_delete):
+                            st.rerun()
+                    else:
+                        st.warning("Please select at least one response to delete.")
+        
+        with col2:
+            # Delete all responses
+            st.markdown("**Delete All Responses**")
+            st.warning("⚠️ This will delete ALL survey responses permanently!")
+            
+            if st.button("🗑️ Delete All Responses", type="secondary", use_container_width=True):
+                # Add confirmation
+                st.session_state.confirm_delete_all = True
+            
+            if st.session_state.get('confirm_delete_all', False):
+                st.error("Are you sure? This action cannot be undone!")
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    if st.button("✅ Yes, Delete All", type="primary"):
+                        if delete_responses(delete_all=True):
+                            st.session_state.confirm_delete_all = False
+                            st.rerun()
+                with col_b:
+                    if st.button("❌ Cancel"):
+                        st.session_state.confirm_delete_all = False
+                        st.rerun()
         
         st.markdown("---")
         
@@ -231,6 +310,7 @@ def run_survey():
         view_responses()
         if st.button("← Back to Survey"):
             st.session_state.show_admin = False
+            st.session_state.confirm_delete_all = False
             st.rerun()
         return
 
