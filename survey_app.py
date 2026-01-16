@@ -1,4 +1,132 @@
 import streamlit as st
+import pandas as pd
+import os
+from datetime import datetime
+
+def save_to_csv(country, all_responses, domain_scores, total_score, percentage):
+    """Save survey responses to CSV file"""
+    try:
+        csv_file = "survey_responses.csv"
+        
+        # Prepare the data
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Create a dictionary for the row
+        row_data = {
+            'Timestamp': timestamp,
+            'Country': country,
+            'Total_Score': total_score,
+            'Percentage': f"{percentage:.1f}%"
+        }
+        
+        # Add domain scores
+        domain_names_short = [
+            'Domain_1_Score',
+            'Domain_2_Score',
+            'Domain_3_Score',
+            'Domain_4_Score'
+        ]
+        
+        for i, (domain_name, score) in enumerate(domain_scores.items()):
+            row_data[domain_names_short[i]] = score
+        
+        # Add individual question responses
+        question_number = 1
+        for domain_name, domain_responses in all_responses.items():
+            for question, answer in domain_responses.items():
+                # Extract just the numeric score
+                score_value = int(answer.split(" - ")[0])
+                row_data[f'Q{question_number}'] = score_value
+                question_number += 1
+        
+        # Create DataFrame
+        new_row_df = pd.DataFrame([row_data])
+        
+        # Append to existing CSV or create new one
+        if os.path.exists(csv_file):
+            existing_df = pd.read_csv(csv_file)
+            updated_df = pd.concat([existing_df, new_row_df], ignore_index=True)
+        else:
+            updated_df = new_row_df
+        
+        # Save to CSV
+        updated_df.to_csv(csv_file, index=False)
+        
+        return True
+        
+    except Exception as e:
+        st.error(f"Error saving to CSV: {e}")
+        return False
+
+def view_responses():
+    """View all survey responses (admin only)"""
+    csv_file = "survey_responses.csv"
+    
+    if os.path.exists(csv_file):
+        df = pd.read_csv(csv_file)
+        
+        st.markdown("### 📊 All Survey Responses")
+        st.markdown(f"**Total Responses:** {len(df)}")
+        
+        # Summary statistics
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Average Score", f"{df['Total_Score'].mean():.1f}/160")
+        with col2:
+            avg_pct = df['Percentage'].str.rstrip('%').astype(float).mean()
+            st.metric("Average Percentage", f"{avg_pct:.1f}%")
+        with col3:
+            st.metric("Countries", df['Country'].nunique())
+        
+        st.markdown("---")
+        
+        # Filter by country
+        countries = ['All'] + sorted(df['Country'].unique().tolist())
+        selected_country = st.selectbox("Filter by Country:", countries)
+        
+        if selected_country != 'All':
+            df_filtered = df[df['Country'] == selected_country]
+        else:
+            df_filtered = df
+        
+        # Display data
+        st.dataframe(df_filtered, use_container_width=True)
+        
+        # Download button
+        csv_data = df_filtered.to_csv(index=False)
+        st.download_button(
+            label="📥 Download Filtered Data as CSV",
+            data=csv_data,
+            file_name=f"survey_responses_{selected_country.lower()}.csv",
+            mime="text/csv"
+        )
+        
+        # Domain analysis
+        st.markdown("---")
+        st.markdown("### 📈 Domain Analysis")
+        
+        domain_cols = ['Domain_1_Score', 'Domain_2_Score', 'Domain_3_Score', 'Domain_4_Score']
+        domain_names = [
+            'Positioning & Influencing',
+            'Business Development',
+            'Knowledge Development',
+            'People Management'
+        ]
+        
+        domain_avg = []
+        for col in domain_cols:
+            domain_avg.append(df_filtered[col].mean())
+        
+        # Create a simple bar chart
+        chart_data = pd.DataFrame({
+            'Domain': domain_names,
+            'Average Score': domain_avg
+        })
+        
+        st.bar_chart(chart_data.set_index('Domain'))
+        
+    else:
+        st.info("No responses yet. The CSV file will be created when the first survey is submitted.")
 
 def run_survey():
     # Page configuration
@@ -51,7 +179,7 @@ def run_survey():
         st.markdown("### 🌍 Select Country")
         country = st.selectbox(
             "Choose your country:",
-            ["Select a country", "Bangladesh", "Benin", "Bhutan", "Burkina Faso" ,"Burundi", "Cambodia", "Ethiopia", "Ghana", "Indonesia", "Kenya", "Lao PDR", "Mali", "Mozambique" , "Nepal" ,"Niger", "Nigeria", "Rwanda" , "South Sudan" , "Tanzania" , "Uganda" , "Vietnam" , "Zambia" , "Zimbabwe"],
+            ["Select a country", "Zambia", "Zimbabwe", "Kenya"],
             index=0
         )
         
@@ -79,6 +207,27 @@ def run_survey():
         - **3** - Advanced
         - **4** - Full-fledged
         """)
+        
+        # Admin section - More visible
+        st.markdown("---")
+        st.markdown("### 🔐 Admin Panel")
+        admin_password = st.text_input("Enter Admin Password:", type="password", key="admin_pass")
+        
+        # Simple password - you can change this
+        if admin_password == "admin123":
+            st.success("✅ Admin access granted")
+            if st.button("📊 View All Responses", use_container_width=True):
+                st.session_state.show_admin = True
+        elif admin_password:
+            st.error("❌ Incorrect password")
+
+    # Check if admin wants to view responses
+    if st.session_state.get('show_admin', False):
+        view_responses()
+        if st.button("← Back to Survey"):
+            st.session_state.show_admin = False
+            st.rerun()
+        return
 
     # Define all survey data
     domains = {
@@ -191,8 +340,15 @@ def run_survey():
             
             percentage = (total_score / max_possible) * 100
 
-            # Display results
-            st.success(f"✅ Benchmarking assessment for **{country}** submitted successfully!")
+            # Save to CSV
+            with st.spinner("Saving your responses..."):
+                save_success = save_to_csv(country, all_responses, domain_scores, total_score, percentage)
+            
+            if save_success:
+                st.success(f"✅ Benchmarking assessment for **{country}** submitted and saved successfully!")
+            else:
+                st.warning("⚠️ Assessment completed but there was an issue saving. Results are shown below.")
+            
             st.markdown("---")
             
             # Overall results
@@ -287,4 +443,3 @@ Domain Scores:
 
 if __name__ == "__main__":
     run_survey()
-
