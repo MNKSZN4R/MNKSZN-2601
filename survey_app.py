@@ -179,7 +179,10 @@ def run_survey():
         st.markdown("### 🌍 Select Country")
         country = st.selectbox(
             "Choose your country:",
-            ["Select a country", "Zambia", "Zimbabwe", "Kenya"],
+            ["Select a country", "Bangladesh", "Benin", "Bhutan", "Burkina Faso", "Burundi", 
+             "Cambodia", "Ethiopia", "Ghana", "Indonesia", "Kenya", "Lao PDR", "Mali", 
+             "Mozambique", "Nepal", "Niger", "Nigeria", "Rwanda", "South Sudan", "Tanzania", 
+             "Uganda", "Vietnam", "Zambia", "Zimbabwe"],
             index=0
         )
         
@@ -208,18 +211,23 @@ def run_survey():
         - **4** - Full-fledged
         """)
         
-        # Admin section - More visible
-        st.markdown("---")
-        st.markdown("### 🔐 Admin Panel")
-        admin_password = st.text_input("Enter Admin Password:", type="password", key="admin_pass")
+        # Admin section - Only show if URL parameter is present
+        # To access admin: add ?admin=true to your URL
+        # Example: http://localhost:8501/?admin=true
+        query_params = st.query_params
         
-        # Simple password - you can change this
-        if admin_password == "admin123":
-            st.success("✅ Admin access granted")
-            if st.button("📊 View All Responses", use_container_width=True):
-                st.session_state.show_admin = True
-        elif admin_password:
-            st.error("❌ Incorrect password")
+        if query_params.get("admin") == "true":
+            st.markdown("---")
+            st.markdown("### 🔐 Admin Panel")
+            admin_password = st.text_input("Enter Admin Password:", type="password", key="admin_pass")
+            
+            # Simple password - you can change this
+            if admin_password == "admin123":
+                st.success("✅ Admin access granted")
+                if st.button("📊 View All Responses", use_container_width=True):
+                    st.session_state.show_admin = True
+            elif admin_password:
+                st.error("❌ Incorrect password")
 
     # Check if admin wants to view responses
     if st.session_state.get('show_admin', False):
@@ -232,52 +240,52 @@ def run_survey():
     # Define all survey data
     domains = {
         "Domain 1: Positioning, Influencing & Strategic Collaboration": [
-            "1. Understand the overall Country/Sector system and Themes (key national development targets, policies and programmes, market dynamics, main challenges and opportunities, critical stakeholders, power issues, etc)?",
-            "2. Have clear systems transformation ambitions (above and beyond projects), including on what issues to contribute to, what is the desired outcome, what processes are critical to influence and how?",
-            "3. Follow up and intentionally contribute to key Country/Sector processes and debates (technical working groups, industry standards reviews, investment groups, planning cycles, policy and planning reviews, etc)?",
-            "4. Have a good positioning (access, credibility and voice) in key platforms/debates/public forums relevant to its Systems Transformation agenda?",
-            "5. Use robust evidence (projects data, track record, lessons learned, etc) in its Influencing efforts to relevant debates and processes?",
-            "6. Go beyond the country footprint and uses also SNV's global footprint and expertise to strengthen its contribution to debates (global sector strategies, core themes position papers, knowledge documents, evidence from other countries, etc)?",
-            "7. Strategically partner with like minded institutions, also informally, to amplify influencing efforts and pursue shared ambitions?",
-            "8. Deliberately use its access and influence to facilitate the participation of local partners (including representatives of vulnerable groups), as opposed to speaking on their behalf?",
-            "9. Monitors the progress it is making in moving towards its Systems Transformation ambitions, and aptly and timely adapts its positioning to remain relevant in an ever evolving context?",
-            "10. Is intentionally seeking to fund positioning and influencing work in its project design and budgeting efforts (donor allowing)?"
+            "Q1. Understand the overall Country/Sector system and Themes (key national development targets, policies and programmes, market dynamics, main challenges and opportunities, critical stakeholders, power issues, etc)?",
+            "Q2. Have clear systems transformation ambitions (above and beyond projects), including on what issues to contribute to, what is the desired outcome, what processes are critical to influence and how?",
+            "Q3. Follow up and intentionally contribute to key Country/Sector processes and debates (technical working groups, industry standards reviews, investment groups, planning cycles, policy and planning reviews, etc)?",
+            "Q4. Have a good positioning (access, credibility and voice) in key platforms/debates/public forums relevant to its Systems Transformation agenda?",
+            "Q5. Use robust evidence (projects data, track record, lessons learned, etc) in its Influencing efforts to relevant debates and processes?",
+            "Q6. Go beyond the country footprint and uses also SNV's global footprint and expertise to strengthen its contribution to debates (global sector strategies, core themes position papers, knowledge documents, evidence from other countries, etc)?",
+            "Q7. Strategically partner with like minded institutions, also informally, to amplify influencing efforts and pursue shared ambitions?",
+            "Q8. Deliberately use its access and influence to facilitate the participation of local partners (including representatives of vulnerable groups), as opposed to speaking on their behalf?",
+            "Q9. Monitors the progress it is making in moving towards its Systems Transformation ambitions, and aptly and timely adapts its positioning to remain relevant in an ever evolving context?",
+            "Q10. Is intentionally seeking to fund positioning and influencing work in its project design and budgeting efforts (donor allowing)?"
         ],
         "Domain 2: Business Development & Partnerships": [
-            "1. Strategically use its presence in relevant spaces and its relationships to strengthen its competitive edge (strong position and reputation, credibility to influence the donors' agenda, adequate showcase of its technical capacity, footprint and track record)?",
-            "2. Have a deep understanding of the donor landscape in country and its trends -- including by nurturing (also informal) relationships with current and potential donors in country (including emerging ones)?",
-            "3. Have the ability to capture donor intelligence timely, including 'unwritten' information?",
-            "4. Have knowledge about key competitors/potential partners, including an understanding of their profiles and of their competitive advantage in relation to SNV and of SNV's competitive advantage in relation to them?",
-            "5. Have strong relationships with local partners that enable it to easily mobilize them and closely work with them on BD opportunities (as opposed to reactively seeking partners when an opportunity arises)?",
-            "6. Use an opportunity-cost/decision making mechanism to critically assess opportunities and decide on which ones to invest in in a focused and timely manner (as opposed to responding to any)?",
-            "7. Have capacity to contextualize Global expertise (Sector Framework Approaches, Core Themes positioning papers, track records, lessons learned, etc) to the country's realities and to what the donors require - including the capacity to 'package' a proposal to fit with the terminology, priorities and preferred approaches of the donor?",
-            "8. Have access to the Global Technical Expertise support it requires to complement/enhance the BD capacity in country (in addition to the technical quality of the proposals)?",
-            "9. Have MEL systems (including staff) that are able to generate evidence of its capacity, track record, innovations/lessons learned to use in proposal development?",
-            "10. Have a practice of consistently seeking feedback from donors - to learn from both successful and failed proposal submissions?"
+            "Q11. Strategically use its presence in relevant spaces and its relationships to strengthen its competitive edge (strong position and reputation, credibility to influence the donors' agenda, adequate showcase of its technical capacity, footprint and track record)?",
+            "Q12. Have a deep understanding of the donor landscape in country and its trends -- including by nurturing (also informal) relationships with current and potential donors in country (including emerging ones)?",
+            "Q13. Have the ability to capture donor intelligence timely, including 'unwritten' information?",
+            "Q14. Have knowledge about key competitors/potential partners, including an understanding of their profiles and of their competitive advantage in relation to SNV and of SNV's competitive advantage in relation to them?",
+            "Q15. Have strong relationships with local partners that enable it to easily mobilize them and closely work with them on BD opportunities (as opposed to reactively seeking partners when an opportunity arises)?",
+            "Q16. Use an opportunity-cost/decision making mechanism to critically assess opportunities and decide on which ones to invest in in a focused and timely manner (as opposed to responding to any)?",
+            "Q17. Have capacity to contextualize Global expertise (Sector Framework Approaches, Core Themes positioning papers, track records, lessons learned, etc) to the country's realities and to what the donors require - including the capacity to 'package' a proposal to fit with the terminology, priorities and preferred approaches of the donor?",
+            "Q18. Have access to the Global Technical Expertise support it requires to complement/enhance the BD capacity in country (in addition to the technical quality of the proposals)?",
+            "Q19. Have MEL systems (including staff) that are able to generate evidence of its capacity, track record, innovations/lessons learned to use in proposal development?",
+            "Q20. Have a practice of consistently seeking feedback from donors - to learn from both successful and failed proposal submissions?"
         ],
         "Domain 3: Knowledge Development & Teams Capacity Enhancement": [
-            "1. Have awareness of the Knowledge status (trends/hot topics, state of the art knowledge, key learning questions, main KD players), nationally and internationally, relevant for the sectors and themes work in its portfolio?",
-            "2. Have an understanding of its portfolio strengths and gaps in relation to the current knowledge status on issues relevant to its work?",
-            "3. Proactively seek to advance Knowledge relevant for its portfolio work (sectors AND themes) by engaging with Global Teams and learning from the practice and research of others (including academia) nationally, regionally and/or globally?",
-            "4. Promote cross-sectorial learning and a deeper integration of core themes across the entire portfolio, in line with those broader Knowledge Development ambitions?",
-            "5. Periodically assesses project results and team insights (data sense making, lessons learned, failures, etc) to critically interrogate approaches, technical solutions and/or methodologies used across the portfolio, so as to further develop and update them?",
-            "6. Have a practice to identify, nurture, validate and document for sharing (also with Global teams) innovation emerging from its work practice?",
-            "7. Deliberately seeks to learn from and to contribute to SNV's Global knowledge development (including through cross-country engagements/mechanisms)?",
-            "8. Have a practice of deliberately engaging with Local Partners to jointly advance Knowledge, creating opportunities for mutual learning and expertise growth?",
-            "9. Have a mechanism to identify and address the Technical Teams' learning needs (including soft skills)?",
-            "10. Have a standard practice of integrating, to the extent possible (considering size, scope and budget), KD objectives and Teams capacity development objectives in project's design and budgeting?"
+            "Q21. Have awareness of the Knowledge status (trends/hot topics, state of the art knowledge, key learning questions, main KD players), nationally and internationally, relevant for the sectors and themes work in its portfolio?",
+            "Q22. Have an understanding of its portfolio strengths and gaps in relation to the current knowledge status on issues relevant to its work?",
+            "Q23. Proactively seek to advance Knowledge relevant for its portfolio work (sectors AND themes) by engaging with Global Teams and learning from the practice and research of others (including academia) nationally, regionally and/or globally?",
+            "Q24. Promote cross-sectorial learning and a deeper integration of core themes across the entire portfolio, in line with those broader Knowledge Development ambitions?",
+            "Q25. Periodically assesses project results and team insights (data sense making, lessons learned, failures, etc) to critically interrogate approaches, technical solutions and/or methodologies used across the portfolio, so as to further develop and update them?",
+            "Q26. Have a practice to identify, nurture, validate and document for sharing (also with Global teams) innovation emerging from its work practice?",
+            "Q27. Deliberately seeks to learn from and to contribute to SNV's Global knowledge development (including through cross-country engagements/mechanisms)?",
+            "Q28. Have a practice of deliberately engaging with Local Partners to jointly advance Knowledge, creating opportunities for mutual learning and expertise growth?",
+            "Q29. Have a mechanism to identify and address the Technical Teams' learning needs (including soft skills)?",
+            "Q30. Have a standard practice of integrating, to the extent possible (considering size, scope and budget), KD objectives and Teams capacity development objectives in project's design and budgeting?"
         ],
         "Domain 4: People & Project Management": [
-            "1. Align projects with Sector Framework Approaches and Core Themes (as possible, considering the scope), or at the very least with their key principles, for enhanced coherence and branding of 'SNV's Technical Expertise and way of working'?",
-            "2. Steer projects for quality, systems change, local partners empowerment, and sustainability (in addition to planned results and compliance with donor requirements)?",
-            "3. Have MEL frameworks that track progress and evaluate outcome and impact achievements (as opposed to just outputs) and that have also (relevant) core themes indicators?",
-            "4. Have capacity for sense making of MEL data (ability to identify the causal relationship between progress recorded and the work conducted by the project and/or contextual factors)?",
-            "5. Use an adaptive management approach (fostering a mindset of critically interrogating projects' progress and the introduction of changes as relevant and possible, in dialogue with the donor when needed)?",
-            "6. Have a practice of mobilizing Global Technical Expertise to support in country project delivery, as relevant?",
-            "7. Recognize project implementation as a multi-pooling of capacities (not just the technical teams but also financial, procurement, logistics, HR) with lines of accountability established accordingly?",
-            "8. Practice downward accountability of country management and technical leadership, with these accountable for how much teams feedback on projects' progress is considered and acted on, and on how much teams feel valued?",
-            "9. Have a mechanism that acknowledges and strives to build diverse skill sets in the technical teams, in addition to 'pure' technical expertise, namely soft skills (facilitating, influencing, advocating, etc)?",
-            "10. Manages for talent retention, including recognition of performance and a plan for the 'in between projects' gaps?"
+            "Q31. Align projects with Sector Framework Approaches and Core Themes (as possible, considering the scope), or at the very least with their key principles, for enhanced coherence and branding of 'SNV's Technical Expertise and way of working'?",
+            "Q32. Steer projects for quality, systems change, local partners empowerment, and sustainability (in addition to planned results and compliance with donor requirements)?",
+            "Q33. Have MEL frameworks that track progress and evaluate outcome and impact achievements (as opposed to just outputs) and that have also (relevant) core themes indicators?",
+            "Q34. Have capacity for sense making of MEL data (ability to identify the causal relationship between progress recorded and the work conducted by the project and/or contextual factors)?",
+            "Q35. Use an adaptive management approach (fostering a mindset of critically interrogating projects' progress and the introduction of changes as relevant and possible, in dialogue with the donor when needed)?",
+            "Q36. Have a practice of mobilizing Global Technical Expertise to support in country project delivery, as relevant?",
+            "Q37. Recognize project implementation as a multi-pooling of capacities (not just the technical teams but also financial, procurement, logistics, HR) with lines of accountability established accordingly?",
+            "Q38. Practice downward accountability of country management and technical leadership, with these accountable for how much teams feedback on projects' progress is considered and acted on, and on how much teams feel valued?",
+            "Q39. Have a mechanism that acknowledges and strives to build diverse skill sets in the technical teams, in addition to 'pure' technical expertise, namely soft skills (facilitating, influencing, advocating, etc)?",
+            "Q40. Manages for talent retention, including recognition of performance and a plan for the 'in between projects' gaps?"
         ]
     }
 
