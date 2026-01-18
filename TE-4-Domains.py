@@ -7,6 +7,9 @@ import os
 # Page configuration
 st.set_page_config(page_title="SNV Four Domains Benchmarking", layout="wide")
 
+# Admin password - Change this to your desired password
+ADMIN_PASSWORD = "admin123"
+
 # File to store responses
 RESPONSES_FILE = "survey_responses.json"
 
@@ -17,6 +20,8 @@ if 'responses' not in st.session_state:
     st.session_state.responses = {}
 if 'admin_mode' not in st.session_state:
     st.session_state.admin_mode = False
+if 'admin_authenticated' not in st.session_state:
+    st.session_state.admin_authenticated = False
 
 # Functions to save and load responses
 def save_response(response_data):
@@ -126,6 +131,7 @@ with st.sidebar:
         st.session_state.admin_mode = True
     else:
         st.session_state.admin_mode = False
+        st.session_state.admin_authenticated = False  # Reset authentication when leaving admin mode
     
     st.markdown("---")
     
@@ -136,109 +142,137 @@ with st.sidebar:
 
 # ADMIN PANEL
 if st.session_state.admin_mode:
-    st.title("🔐 Admin Panel - Survey Responses")
-    
-    all_responses = load_all_responses()
-    
-    if len(all_responses) == 0:
-        st.info("No survey responses recorded yet.")
-    else:
-        st.success(f"Total Responses: {len(all_responses)}")
+    # Check if authenticated
+    if not st.session_state.admin_authenticated:
+        st.title("🔐 Admin Login")
+        st.markdown("### Enter admin password to access responses")
         
-        # Summary statistics
-        st.markdown("### 📊 Summary Statistics")
-        col1, col2, col3 = st.columns(3)
+        password_input = st.text_input("Password:", type="password", key="admin_password_input")
         
-        # Count responses by sector
-        sectors_count = {}
-        for resp in all_responses:
-            sector = resp.get('sector', 'Unknown')
-            sectors_count[sector] = sectors_count.get(sector, 0) + 1
-        
-        with col1:
-            st.metric("Water", sectors_count.get('Water', 0))
+        col1, col2, col3 = st.columns([1, 1, 1])
         with col2:
-            st.metric("Energy", sectors_count.get('Energy', 0))
-        with col3:
-            st.metric("Agri Food Systems", sectors_count.get('Agri Food Systems', 0))
+            if st.button("Login", type="primary"):
+                if password_input == ADMIN_PASSWORD:
+                    st.session_state.admin_authenticated = True
+                    st.rerun()
+                else:
+                    st.error("❌ Incorrect password. Please try again.")
+        
+        st.markdown("---")
+        st.info("💡 Default password: admin123 (Change this in the code for security)")
+    
+    else:
+        # Authenticated - Show admin panel
+        st.title("🔐 Admin Panel - Survey Responses")
+        
+        # Logout button
+        if st.button("🚪 Logout", type="secondary"):
+            st.session_state.admin_authenticated = False
+            st.rerun()
         
         st.markdown("---")
         
-        # Display individual responses
-        st.markdown("### 📋 Individual Responses")
+        all_responses = load_all_responses()
         
-        for i, response in enumerate(reversed(all_responses)):
-            with st.expander(f"Response {response.get('response_id', f'R{i+1}')} - {response.get('sector', 'Unknown')} - {response.get('timestamp', 'N/A')}"):
-                
-                # Calculate total score
-                domain_scores = {}
-                question_num = 1
-                
-                for domain_name in domains.keys():
-                    domain_score = 0
-                    st.markdown(f"**{domain_name}**")
+        if len(all_responses) == 0:
+            st.info("No survey responses recorded yet.")
+        else:
+            st.success(f"Total Responses: {len(all_responses)}")
+            
+            # Summary statistics
+            st.markdown("### 📊 Summary Statistics")
+            col1, col2, col3 = st.columns(3)
+            
+            # Count responses by sector
+            sectors_count = {}
+            for resp in all_responses:
+                sector = resp.get('sector', 'Unknown')
+                sectors_count[sector] = sectors_count.get(sector, 0) + 1
+            
+            with col1:
+                st.metric("Water", sectors_count.get('Water', 0))
+            with col2:
+                st.metric("Energy", sectors_count.get('Energy', 0))
+            with col3:
+                st.metric("Agri Food Systems", sectors_count.get('Agri Food Systems', 0))
+            
+            st.markdown("---")
+            
+            # Display individual responses
+            st.markdown("### 📋 Individual Responses")
+            
+            for i, response in enumerate(reversed(all_responses)):
+                with st.expander(f"Response {response.get('response_id', f'R{i+1}')} - {response.get('sector', 'Unknown')} - {response.get('timestamp', 'N/A')}"):
                     
-                    for j in range(len(domains[domain_name])):
-                        key = f"{domain_name}_{j}"
-                        rating = response.get(key, 0)
-                        domain_score += rating
+                    # Calculate total score
+                    domain_scores = {}
+                    question_num = 1
+                    
+                    for domain_name in domains.keys():
+                        domain_score = 0
+                        st.markdown(f"**{domain_name}**")
                         
-                        st.write(f"Q{question_num}. Rating: {rating} - {rating_options.get(rating, 'N/A')}")
-                        question_num += 1
+                        for j in range(len(domains[domain_name])):
+                            key = f"{domain_name}_{j}"
+                            rating = response.get(key, 0)
+                            domain_score += rating
+                            
+                            st.write(f"Q{question_num}. Rating: {rating} - {rating_options.get(rating, 'N/A')}")
+                            question_num += 1
+                        
+                        domain_scores[domain_name] = domain_score
+                        st.write(f"**Domain Score: {domain_score}/40**")
+                        st.markdown("---")
                     
-                    domain_scores[domain_name] = domain_score
-                    st.write(f"**Domain Score: {domain_score}/40**")
-                    st.markdown("---")
-                
-                total_score = sum(domain_scores.values())
-                st.metric("Total Score", f"{total_score}/160 ({total_score/160*100:.1f}%)")
-        
-        st.markdown("---")
-        
-        # Export all responses
-        st.markdown("### 💾 Export All Responses")
-        
-        if st.button("📥 Download All Responses as CSV"):
-            # Prepare comprehensive export
-            export_rows = []
+                    total_score = sum(domain_scores.values())
+                    st.metric("Total Score", f"{total_score}/160 ({total_score/160*100:.1f}%)")
             
-            for response in all_responses:
-                row = {
-                    'Response ID': response.get('response_id', ''),
-                    'Timestamp': response.get('timestamp', ''),
-                    'Sector': response.get('sector', '')
-                }
-                
-                # Add all question responses
-                question_num = 1
-                for domain_name in domains.keys():
-                    for j in range(len(domains[domain_name])):
-                        key = f"{domain_name}_{j}"
-                        rating = response.get(key, 0)
-                        row[f'Q{question_num}'] = rating
-                        row[f'Q{question_num}_Description'] = rating_options.get(rating, '')
-                        question_num += 1
-                
-                # Add domain scores
-                for domain_name in domains.keys():
-                    domain_score = sum([response.get(f"{domain_name}_{j}", 0) for j in range(len(domains[domain_name]))])
-                    row[f'{domain_name}_Score'] = domain_score
-                
-                # Add total score
-                total = sum([response.get(f"{dn}_{j}", 0) for dn in domains.keys() for j in range(len(domains[dn]))])
-                row['Total_Score'] = total
-                
-                export_rows.append(row)
+            st.markdown("---")
             
-            df = pd.DataFrame(export_rows)
-            csv = df.to_csv(index=False)
+            # Export all responses
+            st.markdown("### 💾 Export All Responses")
             
-            st.download_button(
-                label="⬇️ Download CSV",
-                data=csv,
-                file_name=f"all_survey_responses_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                mime="text/csv"
-            )
+            if st.button("📥 Download All Responses as CSV"):
+                # Prepare comprehensive export
+                export_rows = []
+                
+                for response in all_responses:
+                    row = {
+                        'Response ID': response.get('response_id', ''),
+                        'Timestamp': response.get('timestamp', ''),
+                        'Sector': response.get('sector', '')
+                    }
+                    
+                    # Add all question responses
+                    question_num = 1
+                    for domain_name in domains.keys():
+                        for j in range(len(domains[domain_name])):
+                            key = f"{domain_name}_{j}"
+                            rating = response.get(key, 0)
+                            row[f'Q{question_num}'] = rating
+                            row[f'Q{question_num}_Description'] = rating_options.get(rating, '')
+                            question_num += 1
+                    
+                    # Add domain scores
+                    for domain_name in domains.keys():
+                        domain_score = sum([response.get(f"{domain_name}_{j}", 0) for j in range(len(domains[domain_name]))])
+                        row[f'{domain_name}_Score'] = domain_score
+                    
+                    # Add total score
+                    total = sum([response.get(f"{dn}_{j}", 0) for dn in domains.keys() for j in range(len(domains[dn]))])
+                    row['Total_Score'] = total
+                    
+                    export_rows.append(row)
+                
+                df = pd.DataFrame(export_rows)
+                csv = df.to_csv(index=False)
+                
+                st.download_button(
+                    label="⬇️ Download CSV",
+                    data=csv,
+                    file_name=f"all_survey_responses_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                    mime="text/csv"
+                )
 
 # SURVEY MODE
 else:
@@ -299,12 +333,16 @@ else:
             st.write(benchmark)
             
             key = f"{current_domain}_{i}"
+            
+            # Check if this question has been answered before
+            default_index = None if key not in st.session_state.responses else st.session_state.responses[key]
+            
             rating = st.radio(
                 "Rating:",
                 options=list(rating_options.keys()),
                 format_func=lambda x: f"{x} - {rating_options[x]}",
                 key=key,
-                index=st.session_state.responses.get(key, 0),
+                index=default_index,
                 horizontal=True
             )
             st.session_state.responses[key] = rating
