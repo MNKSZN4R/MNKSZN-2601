@@ -7,7 +7,7 @@ import os
 # Page configuration
 st.set_page_config(page_title="SNV Four Domains Benchmarking", layout="wide")
 
-# Admin password - Change this to your desired password
+
 ADMIN_PASSWORD = "admin123"
 
 # File to store responses
