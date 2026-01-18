@@ -7,7 +7,7 @@ import os
 # Page configuration
 st.set_page_config(page_title="SNV Four Domains Benchmarking", layout="wide")
 
-
+# Admin password - Change this to your desired password
 ADMIN_PASSWORD = "admin123"
 
 # File to store responses
@@ -159,7 +159,7 @@ if st.session_state.admin_mode:
                     st.error("❌ Incorrect password. Please try again.")
         
         st.markdown("---")
-        st.info("💡 Please enter your admin password")
+        st.info("💡 Default password: admin123 (Change this in the code for security)")
     
     else:
         # Authenticated - Show admin panel
@@ -348,6 +348,14 @@ else:
             st.session_state.responses[key] = rating
             st.markdown("---")
         
+        # Check if all questions in current domain are answered
+        all_answered = True
+        for i in range(len(domains[current_domain])):
+            key = f"{current_domain}_{i}"
+            if key not in st.session_state.responses:
+                all_answered = False
+                break
+        
         # Navigation buttons
         col1, col2, col3 = st.columns([1, 1, 1])
         with col1:
@@ -356,13 +364,21 @@ else:
                 st.rerun()
         with col3:
             if st.session_state.current_page < 4:
-                if st.button("Next →", type="primary"):
-                    st.session_state.current_page += 1
-                    st.rerun()
+                if all_answered:
+                    if st.button("Next →", type="primary"):
+                        st.session_state.current_page += 1
+                        st.rerun()
+                else:
+                    st.button("Next →", type="primary", disabled=True)
+                    st.warning("⚠️ Please answer all questions before proceeding to the next domain.")
             else:
-                if st.button("View Results →", type="primary"):
-                    st.session_state.current_page = 5
-                    st.rerun()
+                if all_answered:
+                    if st.button("View Results →", type="primary"):
+                        st.session_state.current_page = 5
+                        st.rerun()
+                else:
+                    st.button("View Results →", type="primary", disabled=True)
+                    st.warning("⚠️ Please answer all questions before viewing results.")
 
     # Results page
     elif st.session_state.current_page == 5:
