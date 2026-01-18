@@ -159,7 +159,7 @@ if st.session_state.admin_mode:
                     st.error("❌ Incorrect password. Please try again.")
         
         st.markdown("---")
-        st.info("💡 Please enter your admin password)")
+        st.info("💡 Please enter your admin password")
     
     else:
         # Authenticated - Show admin panel
