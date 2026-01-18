@@ -159,7 +159,7 @@ if st.session_state.admin_mode:
                     st.error("❌ Incorrect password. Please try again.")
         
         st.markdown("---")
-        st.info("💡 Default password: admin123 (Please enter your admnistrator password)")
+        st.info("💡 (Please enter your admnistrator password)")
     
     else:
         # Authenticated - Show admin panel
@@ -500,3 +500,4 @@ else:
             if st.button("🔄 Start New Assessment"):
                 st.session_state.clear()
                 st.rerun()
+
