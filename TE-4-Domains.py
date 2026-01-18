@@ -7,7 +7,7 @@ import os
 # Page configuration
 st.set_page_config(page_title="SNV Four Domains Benchmarking", layout="wide")
 
-# Admin password - Change this to your desired password
+
 ADMIN_PASSWORD = "admin123"
 
 # File to store responses
@@ -159,7 +159,7 @@ if st.session_state.admin_mode:
                     st.error("❌ Incorrect password. Please try again.")
         
         st.markdown("---")
-        st.info("💡 Default password: admin123 (Change this in the code for security)")
+        st.info("💡 Default password: admin123 (Please enter the Administrator password)")
     
     else:
         # Authenticated - Show admin panel
@@ -492,3 +492,4 @@ else:
             if st.button("🔄 Start New Assessment"):
                 st.session_state.clear()
                 st.rerun()
+
