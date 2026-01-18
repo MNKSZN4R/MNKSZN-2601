@@ -7,7 +7,7 @@ import os
 # Page configuration
 st.set_page_config(page_title="SNV Four Domains Benchmarking", layout="wide")
 
-
+# Admin password - Change this to your desired password
 ADMIN_PASSWORD = "admin123"
 
 # File to store responses
@@ -159,7 +159,7 @@ if st.session_state.admin_mode:
                     st.error("❌ Incorrect password. Please try again.")
         
         st.markdown("---")
-        st.info("💡 Default password: admin123 (Please enter the Administrator password)")
+        st.info("💡 Default password: admin123 (Please enter your admnistrator password)")
     
     else:
         # Authenticated - Show admin panel
@@ -333,19 +333,27 @@ else:
             st.write(benchmark)
             
             key = f"{current_domain}_{i}"
+            radio_key = f"radio_{key}"
             
             # Check if this question has been answered before
-            default_index = None if key not in st.session_state.responses else st.session_state.responses[key]
+            if key in st.session_state.responses:
+                default_index = st.session_state.responses[key]
+            else:
+                default_index = None
             
             rating = st.radio(
                 "Rating:",
                 options=list(rating_options.keys()),
                 format_func=lambda x: f"{x} - {rating_options[x]}",
-                key=key,
+                key=radio_key,
                 index=default_index,
                 horizontal=True
             )
-            st.session_state.responses[key] = rating
+            
+            # Store the response
+            if rating is not None:
+                st.session_state.responses[key] = rating
+            
             st.markdown("---")
         
         # Check if all questions in current domain are answered
@@ -492,4 +500,3 @@ else:
             if st.button("🔄 Start New Assessment"):
                 st.session_state.clear()
                 st.rerun()
-
