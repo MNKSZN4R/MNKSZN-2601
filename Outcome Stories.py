@@ -66,13 +66,6 @@ with st.sidebar:
         st.session_state.admin_mode = False
         st.session_state.admin_authenticated = False
 
-    # Debug helper: confirms whether the app can see the logo file at runtime.
-    st.markdown("---")
-    st.caption("🔍 Debug info")
-    st.caption(f"Working directory: {os.getcwd()}")
-    st.caption(f"Looking for: {BANNER_LOGOS_PATH}")
-    st.caption(f"Found: {'✅ Yes' if os.path.exists(BANNER_LOGOS_PATH) else '❌ No'}")
-
 # ==================================================================
 # ADMIN PANEL
 # ==================================================================
@@ -91,7 +84,6 @@ if st.session_state.admin_mode:
                 else:
                     st.error("❌ Incorrect password. Please try again.")
         st.markdown("---")
-        st.info("💡 Default password: admin123 (change in code for security)")
 
     else:
         st.title("🔐 Admin Panel — Outcome Stories")
