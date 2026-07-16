@@ -13,6 +13,10 @@ ADMIN_PASSWORD = "admin123"
 # File to store responses
 RESPONSES_FILE = "outcome_stories.json"
 
+# Path to the combined logo banner image.
+# This file MUST sit in the same folder as this script (repo root).
+BANNER_LOGOS_PATH = "banner_logos.png"
+
 # ---------- Session State ----------
 if 'admin_mode' not in st.session_state:
     st.session_state.admin_mode = False
@@ -61,6 +65,13 @@ with st.sidebar:
     else:
         st.session_state.admin_mode = False
         st.session_state.admin_authenticated = False
+
+    # Debug helper: confirms whether the app can see the logo file at runtime.
+    st.markdown("---")
+    st.caption("🔍 Debug info")
+    st.caption(f"Working directory: {os.getcwd()}")
+    st.caption(f"Looking for: {BANNER_LOGOS_PATH}")
+    st.caption(f"Found: {'✅ Yes' if os.path.exists(BANNER_LOGOS_PATH) else '❌ No'}")
 
 # ==================================================================
 # ADMIN PANEL
@@ -169,7 +180,6 @@ if st.session_state.admin_mode:
                 export_rows = []
                 for s in all_stories:
                     row = dict(s)
-                    # Flatten list fields
                     row['thematic_areas'] = ', '.join(s.get('thematic_areas', []))
                     row['type_of_change'] = ', '.join(s.get('type_of_change', []))
                     row['wvu_support'] = ', '.join(s.get('wvu_support', []))
@@ -195,35 +205,31 @@ if st.session_state.admin_mode:
 # SUBMISSION FORM
 # ==================================================================
 else:
-    # ---------- Banner (placeholder for logos) ----------
+    # ---------- Banner (with embedded combined logo strip) ----------
+    if os.path.exists(BANNER_LOGOS_PATH):
+        st.image(BANNER_LOGOS_PATH, use_container_width=True)
+    else:
+        st.warning(
+            f"📁 Could not find '{BANNER_LOGOS_PATH}'. Make sure it's uploaded to the "
+            f"same folder as this script (repo root), with that exact filename. "
+            f"Check the sidebar debug info for the current working directory."
+        )
+
     st.markdown(
         """
         <div style="background: linear-gradient(90deg, #1B6CA8 0%, #2E9E5B 100%);
-                    padding: 25px 30px; border-radius: 8px; margin-bottom: 20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div style="color:white; font-size:14px; font-weight:600; letter-spacing:1px;">
-                    SNV
-                </div>
-                <div style="color:white; text-align:center;">
-                    <div style="font-size:26px; font-weight:800;">Water Voices United</div>
-                    <div style="font-size:13px; margin-top:4px;">
-                        Strengthening CSOs capacities and collaboration for the realization of the
-                        Human Right to Water and Sanitation in Zambia
-                    </div>
-                </div>
-                <div style="color:white; font-size:14px; font-weight:600; letter-spacing:1px;">
-                    NGO WASH FORUM
+                    padding: 20px 30px; border-radius: 8px; margin-top: 10px; margin-bottom: 20px;">
+            <div style="color:white; text-align:center;">
+                <div style="font-size:26px; font-weight:800;">Water Voices United</div>
+                <div style="font-size:13px; margin-top:4px;">
+                    Strengthening CSOs capacities and collaboration for the realization of the
+                    Human Right to Water and Sanitation in Zambia
                 </div>
             </div>
         </div>
         """,
         unsafe_allow_html=True
     )
-    # NOTE: Replace the text placeholders above with st.image() calls once you
-    # have the actual logo files, e.g.:
-    # col1, col2, col3 = st.columns([1,2,1])
-    # with col1: st.image("snv_logo.png")
-    # with col3: st.image("ngo_wash_forum_logo.png")
 
     st.title("📖 Outcome Story")
     st.markdown("**Capturing CSO-driven change — for visibility, influence and donor credibility**")
