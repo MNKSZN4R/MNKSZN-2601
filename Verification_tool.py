@@ -13,6 +13,10 @@ ACCESS_PASSWORD = "admin123"
 # File to store verification records
 RESPONSES_FILE = "verification_records.json"
 
+# Path to the combined logo banner image (same file used across all WVU apps).
+# This file MUST sit in the same folder as this script (repo root).
+BANNER_LOGOS_PATH = "banner_logos.png"
+
 # ---------- Session State ----------
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = False
@@ -80,11 +84,16 @@ else:
             st.session_state.authenticated = False
             st.rerun()
 
-    # ---------- Banner ----------
+    # ---------- Banner (with embedded combined logo strip) ----------
+    # This file must sit in the same folder as this script (repo root),
+    # named exactly: banner_logos.png
+    if os.path.exists(BANNER_LOGOS_PATH):
+        st.image(BANNER_LOGOS_PATH, use_container_width=True)
+
     st.markdown(
         """
         <div style="background: linear-gradient(90deg, #1B6CA8 0%, #2E9E5B 100%);
-                    padding: 20px 30px; border-radius: 8px; margin-bottom: 20px;">
+                    padding: 20px 30px; border-radius: 8px; margin-top: 10px; margin-bottom: 20px;">
             <div style="color:white; text-align:center;">
                 <div style="font-size:26px; font-weight:800;">Water Voices United</div>
                 <div style="font-size:13px; margin-top:4px;">
